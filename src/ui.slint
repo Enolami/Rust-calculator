@@ -1,0 +1,86 @@
+import { AboutSlint, VerticalBox, GridBox, Button } from "std-widgets.slint";
+
+component Button inherits Rectangle {
+    in-out property text <=> txt.text;
+    callback clicked <=> touch.clicked;
+    border-radius: root.height / 2;
+    border-width: 1px;
+    border-color: root.background.darker(25%);
+    background: touch.pressed ? #6b8282 : touch.has-hover ? #6c616c :  #456;
+    // height: txt.preferred-height * 1.33;
+    min-width: txt.preferred-width + 20px;
+    txt := Text {
+        x: (parent.width - self.width)/2 + (touch.pressed ? 2px : 0);
+        y: (parent.height - self.height)/2 + (touch.pressed ? 1px : 0);
+        color: touch.pressed ? #fff : #eee;
+        font-size: 20px;
+        horizontal-alignment: center;
+    }
+    touch := TouchArea { }
+}
+
+export component Calculator inherits Window {
+    width: 300px;
+    height: 400px;
+    title: "Calculator";
+
+    in-out property <string> display-text: "0";
+    in-out property <string> operation-text: "";
+    callback button-pressed(string);
+
+    VerticalBox {
+        spacing: 5px;
+        padding: 5px;
+
+        display_operation := TextInput{
+            text: operation-text;
+            read-only: true;
+            font-size: 16px;
+            horizontal-alignment: right;
+            height: 30px;
+            color: Colors.gray;
+        }
+
+        display := TextInput {
+            text: display-text;
+            read-only: true;
+            font-size: 32px;
+            horizontal-alignment: right;
+            height: 60px;
+        }
+
+        GridBox {
+            spacing: 5px;
+            Row {
+                Button {text: "±";clicked => {root.button-pressed(self.text)};}
+                Button {text: "CE";clicked => {root.button-pressed(self.text)};}
+                Button {text: "C";clicked => {root.button-pressed(self.text)};}
+                Button {text: "←";clicked => {root.button-pressed(self.text)};}
+            }
+            Row {
+                Button {text: "7";clicked => {root.button-pressed(self.text)};}
+                Button {text: "8";clicked => {root.button-pressed(self.text)};}
+                Button {text: "9";clicked => {root.button-pressed(self.text)};}
+                Button {text: "÷";clicked => {root.button-pressed(self.text)};}
+            }
+            Row {
+                Button {text: "4";clicked => {root.button-pressed(self.text)};}
+                Button {text: "5";clicked => {root.button-pressed(self.text)};}
+                Button {text: "6";clicked => {root.button-pressed(self.text)};}
+                Button {text: "x";clicked => {root.button-pressed(self.text)};}
+            }
+            Row {
+                Button {text: "1";clicked => {root.button-pressed(self.text)};}
+                Button {text: "2";clicked => {root.button-pressed(self.text)};}
+                Button {text: "3";clicked => {root.button-pressed(self.text)};}
+                Button {text: "−";clicked => {root.button-pressed(self.text)};}
+            }
+            Row {
+                Button {text: ".";clicked => {root.button-pressed(self.text)};}
+                Button {text: "0";clicked => {root.button-pressed(self.text)};}
+                Button {text: "=";clicked => {root.button-pressed(self.text)};}
+                Button {text: "+";clicked => {root.button-pressed(self.text)};}
+            }
+        }
+    }
+}
