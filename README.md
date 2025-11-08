@@ -3,11 +3,11 @@
 This is a simple calculator application built with Rust and the Slint UI framework. It was created as a learning project to demonstrate connecting a Rust backend (for logic) to a Slint frontend (for UI).
 <div style="display: flex; justify-content: center; gap: 20px;">
   <div>
-    <img src="light-screenshot.png" alt="Image 1" width="300">
+    <img src="light-screenshot.png" alt="Image 1" width="200">
     <p align="center"><em>Light mode</em></p>
   </div>
   <div>
-    <img src="dark-screenshot.png" alt="Image 2" width="300">
+    <img src="dark-screenshot.png" alt="Image 2" width="200">
     <p align="center"><em>Dark mode</em></p>
   </div>
 </div>
