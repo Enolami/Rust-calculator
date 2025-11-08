@@ -1,3 +1,5 @@
+use core::f64;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Op {
     Add,
@@ -10,6 +12,8 @@ pub enum Op {
 pub struct CalculatorState {
     pub current: String,
     pub history: String,
+    pub full_history: Vec<String>,
+    memory: f64,
     stored: f64,
     op: Option<Op>,
     last_op: Option<Op>,
@@ -23,6 +27,8 @@ impl CalculatorState {
         CalculatorState {
             current: "0".to_string(),
             history: "".to_string(),
+            full_history: Vec::new(),
+            memory: 0.0,
             stored: 0.0,
             op: None,
             last_operand: None,
@@ -30,6 +36,10 @@ impl CalculatorState {
             evaluated: false,
             last_op: None,
         }
+    }
+
+    pub fn is_memory_set(&self) -> bool {
+        self.memory != 0.0
     }
 
     pub fn handle_input(&mut self, input: &str) {
@@ -48,12 +58,19 @@ impl CalculatorState {
             "CE" => self.clear_entry(),
             "←" => self.backspace(),
             "±" => self.toggle_sign(),
+            "MC" => self.memory_clear(),
+            "MR" => self.memory_recall(),
+            "M+" => self.memory_add(),
+            "M-" => self.memory_subtract(),
+            "MS" => self.memory_store(),
             _ => {}
         }
     }
 
     fn clear_all(&mut self) {
+        let memory = self.memory;
         *self = CalculatorState::new();
+        self.memory = memory;
     }
 
     fn clear_entry(&mut self) {
@@ -67,6 +84,37 @@ impl CalculatorState {
             self.current = "0".to_string();
             self.evaluated = false;
         }
+    }
+
+    fn memory_clear(&mut self) {
+        self.memory = 0.0;
+    }
+
+    fn memory_recall(&mut self) {
+        if self.error {return;}
+        self.clear_if_evaluated();
+        self.current = self.memory.to_string();
+    }
+
+    fn memory_add(&mut self) {
+        if self.error {return;}
+        let val = self.current.parse::<f64>().unwrap_or(0.0);
+        self.memory += val;
+        self.evaluated = true;
+    }
+
+    fn memory_subtract(&mut self) {
+        if self.error {return;}
+        let val = self.current.parse::<f64>().unwrap_or(0.0);
+        self.memory -= val;
+        self.evaluated = true;
+    }
+
+    fn memory_store(&mut self) {
+        if self.error {return;}
+        let val = self.current.parse::<f64>().unwrap_or(0.0);
+        self.memory = val;
+        self.evaluated = true;
     }
 
     fn input_digit(&mut self, digit: char) {
@@ -148,6 +196,8 @@ impl CalculatorState {
 
         self.calculate_internal(&op_to_use);
 
+        let final_entry = format!("{} {}", self.history, self.current.clone());
+        self.full_history.push(final_entry);
         self.op = None;
         self.evaluated = true;
     }
@@ -272,5 +322,55 @@ mod tests {
         assert_eq!(state.current, "1");
         state.handle_input("←");
         assert_eq!(state.current, "0"); 
+    }
+
+    #[test]
+    fn test_memory_functions() {
+        let mut state = CalculatorState::new();
+        assert!(!state.is_memory_set());
+
+        // 5, MS -> memory = 5
+        state.handle_input("5");
+        state.handle_input("MS");
+        assert_eq!(state.memory, 5.0);
+        assert!(state.is_memory_set());
+
+        // C -> current = 0, memory = 5
+        state.handle_input("C");
+        assert_eq!(state.current, "0");
+        assert_eq!(state.memory, 5.0);
+        
+        // MR -> current = 5
+        state.handle_input("MR");
+        assert_eq!(state.current, "5");
+
+        // + 3 = -> current = 8
+        state.handle_input("+");
+        state.handle_input("3");
+        state.handle_input("=");
+        assert_eq!(state.current, "8");
+
+        // M+ -> memory = 5 + 8 = 13
+        state.handle_input("M+");
+        assert_eq!(state.memory, 13.0);
+        
+        // C, 2, M- -> memory = 13 - 2 = 11
+        state.handle_input("C");
+        state.handle_input("2");
+        state.handle_input("M-");
+        assert_eq!(state.memory, 11.0);
+
+        // MR -> current = 11
+        state.handle_input("MR");
+        assert_eq!(state.current, "11");
+
+        // MC -> memory = 0
+        state.handle_input("MC");
+        assert_eq!(state.memory, 0.0);
+        assert!(!state.is_memory_set());
+
+        // MR -> current = 0
+        state.handle_input("MR");
+        assert_eq!(state.current, "0");
     }
 }
