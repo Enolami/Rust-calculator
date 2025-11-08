@@ -87,7 +87,35 @@ export component Calculator inherits Window {
     in-out property <bool> show-history: false;
     in-out property <[string]> history-list: [];
 
+    in property <bool> memory-is-set: false;
+
     callback button-pressed(string);
+    forward-focus: key-handler;
+    key-handler := FocusScope {
+        key-pressed(event) => {
+            if (event.text == "0") {root.button-pressed("0");}
+            else if (event.text == "1") { root.button-pressed("1"); }
+            else if (event.text == "2") { root.button-pressed("2"); }
+            else if (event.text == "3") { root.button-pressed("3"); }
+            else if (event.text == "4") { root.button-pressed("4"); }
+            else if (event.text == "5") { root.button-pressed("5"); }
+            else if (event.text == "6") { root.button-pressed("6"); }
+            else if (event.text == "7") { root.button-pressed("7"); }
+            else if (event.text == "8") { root.button-pressed("8"); }
+            else if (event.text == "9") { root.button-pressed("9"); }
+            else if (event.text == ".") { root.button-pressed("."); }
+            else if (event.text == "+") { root.button-pressed("+"); }
+            else if (event.text == "-") { root.button-pressed("−"); }
+            else if (event.text == "*") { root.button-pressed("x"); }
+            else if (event.text == "/") { root.button-pressed("÷"); }
+            else if (event.text == "c" || event.text == "C") { root.button-pressed("C"); }
+            else if (event.text == "\n" || event.text == "=") { root.button-pressed("="); }
+            else if (event.text == Key.Backspace) { root.button-pressed("←"); }
+            else if (event.text == Key.Escape) { root.button-pressed("C"); }
+            else if (event.text == Key.Delete) { root.button-pressed("CE"); }
+            accept
+        }   
+    }
 
     VerticalBox {            
         spacing: 5px;
@@ -103,6 +131,14 @@ export component Calculator inherits Window {
                     is-dark-theme = !is-dark-theme;
                 }
             }
+
+            Text {
+                text: "M";
+                font-size: 14px;
+                visible: root.memory-is-set;
+                vertical-alignment: center;
+            }
+
             history-button := TouchArea {
                 width: 24px;
                 height: 24px;
@@ -121,6 +157,7 @@ export component Calculator inherits Window {
             read-only: true;
             font-size: 16px;
             horizontal-alignment: right;
+            vertical-alignment: center;
             height: 30px;
             color: Colors.gray;
         }
@@ -136,34 +173,41 @@ export component Calculator inherits Window {
         GridBox {
             spacing: 5px;
             Row {
+                Button { text: "MC"; clicked => { root.button-pressed(self.text) } background: #6c757d; }
+                Button { text: "MR"; clicked => { root.button-pressed(self.text) } background: #6c757d; }
+                Button { text: "M+"; clicked => { root.button-pressed(self.text) } background: #6c757d; }
+                Button { text: "M-"; clicked => { root.button-pressed(self.text) } background: #6c757d; }
+                Button { text: "MS"; clicked => { root.button-pressed(self.text) } background: #6c757d; }
+            }
+            Row {
                 Button {text: "±";clicked => {root.button-pressed(self.text)};}
                 Button {text: "CE";clicked => {root.button-pressed(self.text)};}
                 Button {text: "C";clicked => {root.button-pressed(self.text)};}
-                Button {text: "←";clicked => {root.button-pressed(self.text)};}
+                Button {text: "←";clicked => {root.button-pressed(self.text)}; colspan: 2;}
             }
             Row {
                 Button {text: "7";clicked => {root.button-pressed(self.text)};}
                 Button {text: "8";clicked => {root.button-pressed(self.text)};}
                 Button {text: "9";clicked => {root.button-pressed(self.text)};}
-                Button {text: "÷";clicked => {root.button-pressed(self.text)};}
+                Button {text: "÷";clicked => {root.button-pressed(self.text)};colspan: 2;}
             }
             Row {
                 Button {text: "4";clicked => {root.button-pressed(self.text)};}
                 Button {text: "5";clicked => {root.button-pressed(self.text)};}
                 Button {text: "6";clicked => {root.button-pressed(self.text)};}
-                Button {text: "x";clicked => {root.button-pressed(self.text)};}
+                Button {text: "x";clicked => {root.button-pressed(self.text)};colspan: 2;}
             }
             Row {
                 Button {text: "1";clicked => {root.button-pressed(self.text)};}
                 Button {text: "2";clicked => {root.button-pressed(self.text)};}
                 Button {text: "3";clicked => {root.button-pressed(self.text)};}
-                Button {text: "−";clicked => {root.button-pressed(self.text)};}
+                Button {text: "−";clicked => {root.button-pressed(self.text)};colspan: 2;}
             }
             Row {
                 Button {text: ".";clicked => {root.button-pressed(self.text)};}
                 Button {text: "0";clicked => {root.button-pressed(self.text)};}
                 Button {text: "=";clicked => {root.button-pressed(self.text)};}
-                Button {text: "+";clicked => {root.button-pressed(self.text)};}
+                Button {text: "+";clicked => {root.button-pressed(self.text)};colspan: 2;}
             }
         }
     }

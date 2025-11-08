@@ -3,7 +3,7 @@ slint::include_modules!();
 mod calc;
 use calc::CalculatorState;
 use slint::{SharedString, VecModel};
-use std::rc::Rc;
+use std::{rc::Rc};
 
 fn main() {
     let ui = Calculator::new().unwrap();
@@ -12,6 +12,7 @@ fn main() {
 
     ui.set_display_text(state.current.clone().into());
     ui.set_operation_text(state.history.clone().into());
+    ui.set_memory_is_set(state.is_memory_set());
 
     let history_model = Rc::new(VecModel::from(Vec::new()));
     ui.set_history_list(history_model.into());
@@ -25,7 +26,8 @@ fn main() {
 
         ui.set_display_text(state.current.clone().into());
         ui.set_operation_text(state.history.clone().into());
-
+        ui.set_memory_is_set(state.is_memory_set());
+        
         let history_vec: Vec<SharedString> = state.full_history.iter().map(SharedString::from).collect();
         let history_model = Rc::new(VecModel::from(history_vec));
         ui.set_history_list(history_model.into());
