@@ -1,5 +1,4 @@
-import { AboutSlint, VerticalBox, GridBox, Button } from "std-widgets.slint";
-
+import { AboutSlint, VerticalBox, GridBox, Button, HorizontalBox, ListView, Switch, Palette } from "std-widgets.slint";
 component Button inherits Rectangle {
     in-out property text <=> txt.text;
     callback clicked <=> touch.clicked;
@@ -19,6 +18,62 @@ component Button inherits Rectangle {
     touch := TouchArea { }
 }
 
+component ToggleSwitch inherits Rectangle {
+    callback toggled;
+    in-out property <string> text;
+    in-out property <bool> checked;
+    in-out property<bool> enabled <=> touch-area.enabled;
+    height: 20px;
+    horizontal-stretch: 0;
+    vertical-stretch: 0;
+
+    HorizontalLayout {
+        spacing: 8px;
+        indicator := Rectangle {
+            width: 40px;
+            border-width: 1px;
+            border-radius: root.height / 2;
+            border-color: root.checked ? Colors.white : Colors.black;            
+            background: root.enabled ? (root.checked ? black : white)  : white;
+            animate background { duration: 100ms; }
+
+            bubble := Rectangle {
+                width: root.height - 8px;
+                height: bubble.width;
+                border-radius: bubble.height / 2;
+                y: 4px;
+                x: 4px + self.a * (indicator.width - bubble.width - 8px);
+                property <float> a: root.checked ? 1 : 0;
+                Image {
+                    width: 16px;
+                    height: 16px;
+                    source: root.checked ? @image-url("moon.png") : @image-url("sun.png");
+                }
+                animate a, background { duration: 200ms; easing: ease;}
+            }
+        }
+
+        Text {
+            min-width: max(100px, self.preferred-width);
+            text: root.text;
+            vertical-alignment: center;
+            color: root.enabled ? black : gray;
+        }
+
+    }
+
+    touch-area := TouchArea {
+        width: root.width;
+        height: root.height;
+        clicked => {
+            if (root.enabled) {
+                root.checked = !root.checked;
+                root.toggled();
+            }
+        }
+    }
+}
+
 export component Calculator inherits Window {
     width: 300px;
     height: 400px;
@@ -26,11 +81,40 @@ export component Calculator inherits Window {
 
     in-out property <string> display-text: "0";
     in-out property <string> operation-text: "";
+
+    in-out property <bool> is-dark-theme: false;
+
+    in-out property <bool> show-history: false;
+    in-out property <[string]> history-list: [];
+
     callback button-pressed(string);
 
-    VerticalBox {
+    VerticalBox {            
         spacing: 5px;
         padding: 5px;
+
+        HorizontalBox {
+            alignment: space-between;
+            height: 24px;
+
+            ToggleSwitch {
+                toggled => {
+                    Palette.color-scheme = self.checked ? ColorScheme.dark : ColorScheme.light;
+                    is-dark-theme = !is-dark-theme;
+                }
+            }
+            history-button := TouchArea {
+                width: 24px;
+                height: 24px;
+                Image {
+                    source: @image-url("history.png");
+                    colorize: is-dark-theme ? Colors.white : Colors.black;
+                    width: parent.width;
+                    height: parent.height;
+                }
+                clicked => { root.show-history = !root.show-history; }
+            }
+        }
 
         display_operation := TextInput{
             text: operation-text;
@@ -81,6 +165,51 @@ export component Calculator inherits Window {
                 Button {text: "=";clicked => {root.button-pressed(self.text)};}
                 Button {text: "+";clicked => {root.button-pressed(self.text)};}
             }
+        }
+    }
+
+    hisotry_panel := Rectangle {
+        visible: root.show-history;
+        x:0;
+        y:0;
+        width: parent.width;
+        height: parent.height;
+        background: Colors.white;
+        VerticalBox {
+            padding: 10px;
+            spacing: 10px;
+
+            HorizontalBox {
+                alignment: space-between;
+                Text {
+                    text: "History";
+                    font-size: 20px;
+                }
+                TouchArea {
+                    width: 24px;
+                    height: 24px;
+                    Text {
+                        text: "X";
+                        font-size: 20px;
+                    }
+                    clicked => {root.show-history = false;}
+                }
+            }
+
+            Rectangle {
+                border-radius: 4px;
+                border-width: 1px;
+                height: parent.height - 50px;
+                ListView {
+                    in-out property <[string]> model: root.history-list;
+                    for item in model: Text {
+                        text: item;
+                        padding: 8px;
+                    }
+                }
+            }
+
+            
         }
     }
 }

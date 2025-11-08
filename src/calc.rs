@@ -10,6 +10,7 @@ pub enum Op {
 pub struct CalculatorState {
     pub current: String,
     pub history: String,
+    pub full_history: Vec<String>,
     stored: f64,
     op: Option<Op>,
     last_op: Option<Op>,
@@ -23,6 +24,7 @@ impl CalculatorState {
         CalculatorState {
             current: "0".to_string(),
             history: "".to_string(),
+            full_history: Vec::new(),
             stored: 0.0,
             op: None,
             last_operand: None,
@@ -148,6 +150,8 @@ impl CalculatorState {
 
         self.calculate_internal(&op_to_use);
 
+        let final_entry = format!("{} {}", self.history, self.current);
+        self.full_history.push(final_entry);
         self.op = None;
         self.evaluated = true;
     }
